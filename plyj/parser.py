@@ -2026,7 +2026,7 @@ class Parser(object):
 
     def parse_string(self, code, debug=0, lineno=1, prefix='++'):
         self.lexer.lineno = lineno
-        return self.parser.parse(prefix + code, lexer=self.lexer, debug=debug)
+        return self.parser.parse(prefix + code + '\n', lexer=self.lexer, debug=debug)
 
     def parse_file(self, _file, debug=0):
         if type(_file) == str:
