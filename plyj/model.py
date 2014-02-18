@@ -27,6 +27,9 @@ class SourceElement(object):
     def accept(self, visitor):
         pass
 
+def safe_accept(element, visitor):
+    if isinstance(element, SourceElement):
+        element.accept(visitor)
 
 class CompilationUnit(SourceElement):
 
@@ -50,7 +53,7 @@ class CompilationUnit(SourceElement):
             for import_decl in self.import_declarations:
                 import_decl.accept(visitor)
             for type_decl in self.type_declarations:
-                type_decl.accept(visitor)
+                safe_accept(type_decl, visitor)
 
 
 class PackageDeclaration(SourceElement):
@@ -103,7 +106,7 @@ class ClassDeclaration(SourceElement):
     def accept(self, visitor):
         if visitor.visit_ClassDeclaration(self):
             for decl in self.body:
-                decl.accept(visitor)
+                safe_accept(decl, visitor)
 
 
 class ClassInitializer(SourceElement):
