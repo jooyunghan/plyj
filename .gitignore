@@ -9,3 +9,6 @@ parser.out
 
 .coverage
 cover/
+
+build/
+dist/
