@@ -161,7 +161,9 @@ class FieldDeclaration(SourceElement):
         self.modifiers = modifiers
 
     def accept(self, visitor):
-        visitor.visit_FieldDeclaration(self)
+        if visitor.visit_FieldDeclaration(self):
+            for each in self.variable_declarators:
+                each.accept(visitor)
 
 
 class MethodDeclaration(SourceElement):
@@ -190,7 +192,7 @@ class MethodDeclaration(SourceElement):
         self.throws = throws
 
     def accept(self, visitor):
-        if visitor.visit_MethodDeclaration(self):
+        if visitor.visit_MethodDeclaration(self) and self.body != None:
             for e in self.body:
                 e.accept(visitor)
 
@@ -231,6 +233,9 @@ class VariableDeclarator(SourceElement):
         self.variable = variable
         self.initializer = initializer
 
+    def accept(self, visitor):
+        if visitor.visit_VariableDeclarator(self):
+            safe_accept(self.initializer, visitor)
 
 class Throws(SourceElement):
 
@@ -457,8 +462,8 @@ class BinaryExpression(Expression):
 
     def accept(self, visitor):
         if visitor.visit_BinaryExpression(self):
-            self.lhs.accept(visitor)
-            self.rhs.accept(visitor)
+            safe_accept(self.lhs, visitor)
+            safe_accept(self.rhs, visitor)  # should visit if it is str('this')
 
 
 class Assignment(BinaryExpression):
@@ -473,6 +478,12 @@ class Conditional(Expression):
         self.predicate = predicate
         self.if_true = if_true
         self.if_false = if_false
+
+    def accept(self, visitor):
+        if visitor.visit_Conditional(self):
+            safe_accept(self.predicate, visitor)
+            safe_accept(self.if_true, visitor)
+            safe_accept(self.if_false, visitor)
 
 
 class ConditionalOr(BinaryExpression):
@@ -559,12 +570,16 @@ class Block(Statement):
 
     def accept(self, visitor):
         if visitor.visit_Block(self):
-            [s.accept(visitor) for s in self.statements]
+            for s in self.statements:
+                print "---", s
+                s.accept(visitor)
 
 
 class VariableDeclaration(Statement, FieldDeclaration):
     def accept(self, visitor):
-        visitor.visit_VariableDeclaration(self)
+      if visitor.visit_VariableDeclaration(self):
+            for each in self.variable_declarators:
+                each.accept(visitor)
 
 
 class ArrayInitializer(SourceElement):
@@ -575,6 +590,10 @@ class ArrayInitializer(SourceElement):
             elements = []
         self.elements = elements
 
+    def accept(self, visitor):
+        if visitor.visit_ArrayInitializer(self):
+            for each in self.elements:
+                each.accept(visitor)
 
 class MethodInvocation(Expression):
     def __init__(self, name, arguments=None, type_arguments=None, target=None):
@@ -590,7 +609,10 @@ class MethodInvocation(Expression):
         self.target = target
 
     def accept(self, visitor):
-        visitor.visit_MethodInvocation(self)
+        if visitor.visit_MethodInvocation(self):
+            safe_accept(self.target, visitor)
+        for arg in self.arguments:
+            safe_accept(arg, visitor)
 
 
 class IfThenElse(Statement):
@@ -603,7 +625,9 @@ class IfThenElse(Statement):
         self.if_false = if_false
 
     def accept(self, visitor):
-        visitor.visit_IfThenElse(self)
+        if visitor.visit_IfThenElse(self):
+            safe_accept(self.if_true, visitor)
+            safe_accept(self.if_false, visitor)
 
 
 class While(Statement):
@@ -783,7 +807,7 @@ class Try(Statement):
             for s in self.block:
                 s.accept(visitor)
         for c in self.catches:
-            visitor.visit_Catch(c)
+            c.accept(visitor)
         if self._finally:
             self._finally.accept(visitor)
 
@@ -862,7 +886,12 @@ class InstanceCreation(Expression):
         self.enclosed_in = enclosed_in
 
     def accept(self, visitor):
-        visitor.visit_InstanceCreation(self)
+        if visitor.visit_InstanceCreation(self):
+            for arg in self.arguments:
+                safe_accept(arg, visitor)
+            for decl in self.body:
+                safe_accept(decl, visitor)
+
 
 
 class FieldAccess(Expression):
@@ -901,7 +930,8 @@ class ArrayCreation(Expression):
         self.initializer = initializer
 
     def accept(self, visitor):
-        visitor.visit_ArrayCreation(self)
+        if visitor.visit_ArrayCreation(self):
+            safe_accept(self.initializer, visitor)
 
 
 class Literal(SourceElement):
