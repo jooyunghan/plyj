@@ -42,8 +42,6 @@ class VisitorTest(unittest.TestCase):
         self.visitor = Visitor()
 
     def assertVisited(self, element):
-        for v in self.visitor.visitted:
-          print v
         self.assertIn(element, self.visitor.visitted)
 
     def test_empty_type_declaration(self):
