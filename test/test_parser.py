@@ -48,8 +48,11 @@ class VisitorTest(unittest.TestCase):
 
     def test_empty_type_declaration(self):
         m = self.parser.parse_string('''
+        @interface ReflectionInfo {
+          public Type type() default Type.PUBLIC;;
+        }
         interface Bar {
-          void foo();
+          void foo();;
         }
         class Foo {
           ;

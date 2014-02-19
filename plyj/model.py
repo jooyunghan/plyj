@@ -347,7 +347,7 @@ class AnnotationDeclaration(SourceElement):
     def accept(self, visitor):
         if visitor.visit_AnnotationDeclaration(self):
             for decl in self.body:
-                decl.accept(visitor)
+                safe_accept(decl, visitor)
 
 
 class AnnotationMethodDeclaration(SourceElement):
