@@ -111,12 +111,12 @@ class VisitorTest(unittest.TestCase):
     def test_array_init(self):
         m = self.parser.parse_string('''
         class Foo {
-          int[] a = new int[] {
-            Bar.bas(),
+          Object[] a = new Object[] {
+            Bar.bas(m),this
           };
         }''')
         m.accept(self.visitor)
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.bas')))
+        self.assertVisited(model.MethodInvocation(model.Name('Bar.bas'), [model.Name('m')]))
  
     def test_ternary(self):
         m = self.parser.parse_string('''
@@ -165,11 +165,13 @@ class VisitorTest(unittest.TestCase):
         public class Test {
             ArrayList<Integer> a = new ArrayList<Integer>() {{
                   add(1);
+                  add(this);
             }};
         }
         ''')
         m.accept(self.visitor)
         self.assertVisited(model.MethodInvocation(model.Name('add'), [model.Literal('1')]))
+        self.assertVisited(model.MethodInvocation(model.Name('add'), ['this']))
 
     def test_try_catch_finallY(self):
         m = self.parser.parse_string('''

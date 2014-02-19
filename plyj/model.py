@@ -592,7 +592,7 @@ class ArrayInitializer(SourceElement):
     def accept(self, visitor):
         if visitor.visit_ArrayInitializer(self):
             for each in self.elements:
-                each.accept(visitor)
+                safe_accept(each, visitor)
 
 class MethodInvocation(Expression):
     def __init__(self, name, arguments=None, type_arguments=None, target=None):
