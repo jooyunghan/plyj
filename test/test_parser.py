@@ -51,6 +51,10 @@ class VisitorTest(unittest.TestCase):
         @interface ReflectionInfo {
           public Type type() default Type.PUBLIC;;
         }
+        enum EnumType {
+          VALUE1, VALUE2;
+          public void test() {};
+        }
         interface Bar {
           void foo();;
         }
