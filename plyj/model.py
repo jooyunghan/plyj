@@ -269,7 +269,7 @@ class InterfaceDeclaration(SourceElement):
     def accept(self, visitor):
         if visitor.visit_InterfaceDeclaration(self):
             for decl in self.body:
-                decl.accept(visitor)
+                safe_accept(decl, visitor)
 
 
 class EnumDeclaration(SourceElement):
@@ -571,7 +571,6 @@ class Block(Statement):
     def accept(self, visitor):
         if visitor.visit_Block(self):
             for s in self.statements:
-                print "---", s
                 s.accept(visitor)
 
 
