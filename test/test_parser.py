@@ -69,30 +69,30 @@ class VisitorTest(unittest.TestCase):
         print m.type_declarations[0]
         m.accept(self.visitor) # should not raise exception
 
-    def test__declaration(self):
+    def test_declaration(self):
         m = self.parser.parse_string('''
         abstract class Foo {
-          Foo() {
-            this(0);
-          }
-          Foo(int a) {
-          }
-          int a = Bar.baz() + Bar.foo(); 
-          abstract void foo();
-          void bar() {
-            mConext = this;
-          }
-          Object mContext;
-          static int sVar;
-          static {
-            sVar = Bar.goo();
-          }
+           Foo() {
+             this(0);
+           }
+           Foo(int a) {
+           }
+           int a = Bar.baz() + Bar.foo(); 
+           abstract void foo();
+           void bar() {
+             mConext = this;
+           }
+           Object mContext;
+           static int sVar;
+           static {
+             sVar = Bar.goo();
+           }
         };
         ''')
         m.accept(self.visitor)
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.baz')))
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.foo')))
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.goo')))
+        self.assertVisited(method_invoke('Bar.baz'))
+        self.assertVisited(method_invoke('Bar.foo'))
+        self.assertVisited(method_invoke('Bar.goo'))
 
     def test_visit_block(self):
         m = self.parser.parse_string('''
@@ -106,7 +106,7 @@ class VisitorTest(unittest.TestCase):
           }
         }''')
         m.accept(self.visitor)
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.foo'), [model.Name('a')]))
+        self.assertVisited(method_invoke('Bar.foo', [model.Name('a')]))
 
     def test_array_init(self):
         m = self.parser.parse_string('''
@@ -116,7 +116,7 @@ class VisitorTest(unittest.TestCase):
           };
         }''')
         m.accept(self.visitor)
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.bas'), [model.Name('m')]))
+        self.assertVisited(method_invoke('Bar.bas', [model.Name('m')]))
  
     def test_ternary(self):
         m = self.parser.parse_string('''
@@ -126,8 +126,8 @@ class VisitorTest(unittest.TestCase):
           }
         }''')
         m.accept(self.visitor)
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.bas')))
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.foo')))
+        self.assertVisited(method_invoke('Bar.bas'))
+        self.assertVisited(method_invoke('Bar.foo'))
 
     def test_method_invoke(self):
         m = self.parser.parse_string('''
@@ -137,7 +137,7 @@ class VisitorTest(unittest.TestCase):
           }
         }''')
         m.accept(self.visitor)
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.bas')))
+        self.assertVisited(method_invoke('Bar.bas'))
         
     def test_if_then(self):
         m = self.parser.parse_string('''
@@ -153,10 +153,8 @@ class VisitorTest(unittest.TestCase):
         }
         ''')
         m.accept(self.visitor)
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.foo')))
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.bar')))
-
-
+        self.assertVisited(method_invoke('Bar.foo'))
+        self.assertVisited(method_invoke('Bar.bar'))
 
     def test_instance_create(self):
         m = self.parser.parse_string('''
@@ -170,8 +168,8 @@ class VisitorTest(unittest.TestCase):
         }
         ''')
         m.accept(self.visitor)
-        self.assertVisited(model.MethodInvocation(model.Name('add'), [model.Literal('1')]))
-        self.assertVisited(model.MethodInvocation(model.Name('add'), ['this']))
+        self.assertVisited(method_invoke('add', [model.Literal('1')]))
+        self.assertVisited(method_invoke('add', ['this']))
 
     def test_try_catch_finallY(self):
         m = self.parser.parse_string('''
@@ -188,10 +186,18 @@ class VisitorTest(unittest.TestCase):
         }
         ''')
         m.accept(self.visitor)
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.foo')))
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.goo')))
-        self.assertVisited(model.MethodInvocation(model.Name('Bar.hoo')))
+        self.assertVisited(method_invoke('Bar.foo'))
+        self.assertVisited(method_invoke('Bar.goo'))
+        self.assertVisited(method_invoke('Bar.hoo'))
 
+# test helper factories
+def method_invoke(name, args = None):
+    parts = name.split(".")
+    if len(parts) == 1:
+      return model.MethodInvocation(name, args)
+    else:
+      target, method = parts
+      return model.MethodInvocation(method, args, target=model.Name(target))
 
-
-
+if __name__ == '__main__':
+    unittest.main()
