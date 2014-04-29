@@ -642,7 +642,8 @@ class While(Statement):
         self.body = body
 
     def accept(self, visitor):
-        visitor.visit_While(self)
+        if visitor.visit_While(self):
+            safe_accept(self.body, visitor)
 
 
 class For(Statement):
@@ -763,7 +764,9 @@ class Return(Statement):
         self.result = result
 
     def accept(self, visitor):
-        visitor.visit_Return(self)
+        if visitor.visit_Return(self):
+            safe_accept(self.result, visitor)
+
 
 
 class Synchronized(Statement):
@@ -788,7 +791,8 @@ class Throw(Statement):
         self.exception = exception
 
     def accept(self, visitor):
-        visitor.visit_Throw(self)
+        if visitor.visit_Throw(self):
+            self.exception.accept(visitor)
 
 
 class Try(Statement):
