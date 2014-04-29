@@ -148,6 +148,10 @@ class ConstructorDeclaration(SourceElement):
             for expr in self.block:
                 expr.accept(visitor)
 
+class EmptyDeclaration(SourceElement):
+
+    def accept(self, visitor):
+        visitor.visit_EmptyDeclaration(self)
 
 class FieldDeclaration(SourceElement):
 
