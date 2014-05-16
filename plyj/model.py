@@ -976,6 +976,15 @@ class Name(SourceElement):
     def accept(self, visitor):
         visitor.visit_Name(self)
 
+class KeywordLiteral(SourceElement):
+
+    def __init__(self, value):
+        super(KeywordLiteral, self).__init__()
+        self._fields = ['value']
+        self.value = value
+
+    def accept(self, visitor):
+        visitor.visit_KeywordLiteral(self)
 
 class Visitor(object):
 

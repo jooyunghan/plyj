@@ -66,7 +66,6 @@ class VisitorTest(unittest.TestCase):
 
         };
         ''')
-        print m.type_declarations[0]
         m.accept(self.visitor) # should not raise exception
 
     def test_declaration(self):
@@ -169,7 +168,7 @@ class VisitorTest(unittest.TestCase):
         ''')
         m.accept(self.visitor)
         self.assertVisited(method_invoke('add', [model.Literal('1')]))
-        self.assertVisited(method_invoke('add', ['this']))
+        self.assertVisited(method_invoke('add', [model.KeywordLiteral('this')]))
 
     def test_try_catch_finallY(self):
         m = self.parser.parse_string('''

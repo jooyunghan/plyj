@@ -392,7 +392,10 @@ class ExpressionParser(object):
                                 | field_access
                                 | method_invocation
                                 | array_access'''
-        p[0] = p[1]
+        if p[1] == 'this':
+          p[0] = KeywordLiteral(p[1])
+        else:
+          p[0] = p[1]
 
     def p_primary_no_new_array2(self, p):
         '''primary_no_new_array : '(' name ')'
